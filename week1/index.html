@@ -14,13 +14,70 @@
 	</head>
 	<body>
 		<div id="app">
-			<div class="container my-3">
-				{{name}}
-				<div v-if="loading">loding .....</div>
+			<div class="container">
+				<h3 class="mt-3 text-center">Random People Generator</h3>
+				<p class="my-4">
+					<a
+						class="btn btn-primary"
+						data-bs-toggle="collapse"
+						href="#collapseExample"
+						role="button"
+						aria-expanded="false"
+						aria-controls="collapseExample"
+					>
+						Change Search Results
+					</a>
+				</p>
+				<div class="collapse" id="collapseExample">
+					<div class="card card-body mb-3">
+						<div class="mb-3">
+							<label for="people-number" class="form-label"
+								>Number of people</label
+							>
+							<input
+								type="number"
+								class="form-control"
+								id="people-number"
+								placeholder="Number"
+								min="0"
+								v-model="numOfPeople"
+							/>
+						</div>
+						<div class="mb-3">
+							<label for="people-gender" class="form-label">Gender</label>
+							<select
+								class="form-select"
+								id="people-gender"
+								placeholder="Gender"
+								v-model="genderOfPeople"
+							>
+								<option v-for="item in genderOption" :value="item.gender" >{{item.gender}}</option>
+							<select>
+						</div>
+						<button type="button" class="btn btn-success" @click="fetchData()">Change</button>
+					</div>
+				</div>
+				<div
+					v-if="loading"
+					class="
+						vh-100
+						d-flex
+						flex-column
+						justify-content-center
+						align-items-center
+					"
+				>
+					<div class="spinner-border text-primary" role="status">
+						<span class="visually-hidden">Loading...</span>
+					</div>
+					<p class="mt-1">Loading .....</p>
+				</div>
 				<div v-else>
-					<div class="row row-cols-1 row-cols-md-3 g-4">
+					<div
+						class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 mb-3"
+					>
 						<div class="col" v-for="item in data.results">
-							<div class="card">
+							<div class="card h-100">
 								<img
 									:src="item.picture.large"
 									class="card-img-top"
@@ -29,19 +86,26 @@
 								<div class="card-body">
 									<small>{{item.name.title}}.</small>
 									<h5 class="card-title">
-										{{item.name.first }} {{item.name.last}}
+										{{item.name.first }} {{item.name.last}} 
+										<span v-if="item.gender === 'male'">🧔🏽‍♂️</span>
+                  	<span v-else>👱🏻‍♀️</span>
 									</h5>
 									<p class="card-text">
-										This is a longer card with supporting text below as a
-										natural lead-in to additional content. This content is a
-										little bit longer.
+										Cellphone: <a :href="`tel:${item.cell}`">{{item.cell}}</a>
 									</p>
+									<p class="card-text">
+										Email: <a :href="`mailto:${item.email}`">{{item.email}}</a>
+									</p>
+									<p class="card-text">Country: {{ item.location.country }}</p>
+									<p class="card-text">City: {{ item.location.city }}</p>
+									<iframe width="100%" height="150" frameborder="0" scrolling="no"
+                  marginheight="0" marginwidth="0"
+                  :src=`https://maps.google.com.tw/maps?f=q&hl=zh-TW&geocode=&q=${item.location.coordinates.latitude},${item.location.coordinates.longitude}&z=10&output=embed`></iframe>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<br />
 			</div>
 		</div>
 		<script
@@ -62,6 +126,19 @@
 					return {
 						name: 'Abe Chen',
 						loading: false,
+						numOfPeople: 15, //default number
+						genderOfPeople: "all",
+						genderOption: [
+							{
+								gender: "all"
+							},
+							{
+								gender: "male"
+							},
+							{
+								gender: "female"
+							},
+						],
 						data: [],
 					};
 				},
@@ -78,7 +155,7 @@
 							console.error('ERROR');
 						}
 					},
-					getDataByFetchMethod() {
+					getDataByFetchMethod() { //Doesn't use
 						return fetch('https://randomuser.me/api/?results=10')
 							.then((r) => r.json())
 							.then((res) => {
@@ -86,8 +163,8 @@
 							})
 							.catch((err) => console.error(err));
 					},
-					getDataByAxios() {
-						return axios.get('https://randomuser.me/api/?results=10');
+					getDataByAxios(num = this.numOfPeople, gender = this.genderOfPeople) {
+						return axios.get(`https://randomuser.me/api/?results=${num}${gender !== "all" ? `&gender=${gender}` : ''}`);
 					},
 				},
 				mounted() {
