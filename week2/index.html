@@ -35,102 +35,111 @@
 						mx-2
 					"
 				>
-					<div class="card" style="width: 30rem">
-						<div class="card-body">
-							<div class="input-group mb-3">
-								<input
-									type="number"
-									class="form-control"
-									placeholder="num1"
-									aria-label="num1"
-									v-model.number="num1"
-								/>
-								<span
-									class="input-group-text bg-danger"
-									v-html="operatorSignHtml"
-								>
-								</span>
-								<input
-									type="number"
-									class="form-control"
-									placeholder="num2"
-									aria-label="num2"
-									v-model.number="num2"
-								/>
-							</div>
-							<div
-								class="btn-group w-100"
-								role="group"
-								aria-label="Basic example"
-							>
-								<button
-									type="button"
-									class="btn btn-secondary"
-									@click="switchOperator('+')"
-								>
-									<i class="bi bi-plus fs-4"></i>
-								</button>
-								<button
-									type="button"
-									class="btn btn-secondary"
-									@click="switchOperator('-')"
-								>
-									<i class="bi bi-dash fs-4"></i>
-								</button>
-								<button
-									type="button"
-									class="btn btn-secondary"
-									@click="switchOperator('*')"
-								>
-									<i class="bi bi-x fs-4"></i>
-								</button>
-								<button
-									type="button"
-									class="btn btn-secondary"
-									@click="switchOperator('/')"
-								>
-									<i class="bi bi-slash fs-4"></i>
-								</button>
-							</div>
-
-							<button
-								type="button"
-								class="btn btn-primary mt-2 fs-4 w-100"
-								@click="computeResult"
-							>
-								<i class="bi bi-arrow-repeat"></i>
-							</button>
-						</div>
-					</div>
-					<div class="card mt-3" style="width: 30rem">
-						<div class="card-body pb-0">
-							<h4 class="card-title">Result</h4>
-							<h1 class="text-warning" v-if="result !== null">{{result}}</h1>
-						</div>
-						<hr />
-						<div class="card-body">
-							<h4 class="card-title">History</h4>
-							<ul class="list-group">
-								<li
-									class="
-										list-group-item list-group-item-action
-										d-flex
-										justify-content-between
-									"
-									v-for="(item, index) in history"
-									:class="{active: item.id === cache.id}"
-									:key="item.id"
-								>
-									<div>
+					<h2 class="text-center pt-4 my-4">Calculator</h2>
+					<div class="row">
+						<div class="col-12 col-md-6">
+							<div class="card w-100 mb-2">
+								<div class="card-body">
+									<div class="input-group mb-3">
+										<input
+											type="number"
+											class="form-control"
+											placeholder="num1"
+											aria-label="num1"
+											v-model.number="num1"
+										/>
 										<span
-											class="badge rounded-pill"
-											:class="{'bg-danger': item.id === cache.id,'bg-dark': item.id !== cache.id}"
-											>{{index + 1}}</span
+											class="input-group-text bg-danger"
+											v-html="operatorSignHtml"
 										>
+										</span>
+										<input
+											type="number"
+											class="form-control"
+											placeholder="num2"
+											aria-label="num2"
+											v-model.number="num2"
+										/>
 									</div>
-									<div>{{item.result}}</div>
-								</li>
-							</ul>
+									<div
+										class="btn-group w-100"
+										role="group"
+										aria-label="Basic example"
+									>
+										<button
+											type="button"
+											class="btn btn-secondary"
+											@click="switchOperator('+')"
+										>
+											<i class="bi bi-plus fs-4"></i>
+										</button>
+										<button
+											type="button"
+											class="btn btn-secondary"
+											@click="switchOperator('-')"
+										>
+											<i class="bi bi-dash fs-4"></i>
+										</button>
+										<button
+											type="button"
+											class="btn btn-secondary"
+											@click="switchOperator('*')"
+										>
+											<i class="bi bi-x fs-4"></i>
+										</button>
+										<button
+											type="button"
+											class="btn btn-secondary"
+											@click="switchOperator('/')"
+										>
+											<i class="bi bi-slash fs-4"></i>
+										</button>
+									</div>
+
+									<button
+										type="button"
+										class="btn btn-primary mt-2 fs-4 w-100"
+										@click="computeResult"
+									>
+										<i class="bi bi-arrow-repeat"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-md-6">
+							<div class="card w-100">
+								<div class="card-body pb-0">
+									<h4 class="card-title">Result</h4>
+									<h1 class="text-warning" v-if="result !== null">
+										{{result}}
+									</h1>
+								</div>
+								<hr />
+								<div class="card-body">
+									<h4 class="card-title">History</h4>
+									<ul class="list-group">
+										<li
+											class="
+												list-group-item list-group-item-action
+												d-flex
+												justify-content-between
+											"
+											v-for="(item, index) in history"
+											:class="{active: item.id === cache.id}"
+											:key="item.id"
+										>
+											<div>
+												<span
+													class="badge rounded-pill"
+													:class="{'bg-danger': item.id === cache.id,'bg-dark': item.id !== cache.id}"
+													>{{index + 1}}</span
+												>
+											</div>
+											<div>{{item.result}}</div>
+										</li>
+									</ul>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
