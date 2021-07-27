@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Vue Week2</title>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"
+			crossorigin="anonymous"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"
+		/>
+
+		<style>
+			html,
+			body {
+				height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app" class="h-100 d-flex align-items-center">
+			<div class="container">
+				<div
+					class="
+						d-flex
+						flex-column
+						align-items-center
+						justify-content-center
+						mx-2
+					"
+				>
+					<div class="card" style="width: 30rem">
+						<div class="card-body">
+							<div class="input-group mb-3">
+								<input
+									type="number"
+									class="form-control"
+									placeholder="num1"
+									aria-label="num1"
+									v-model.number="num1"
+								/>
+								<span
+									class="input-group-text bg-danger"
+									v-html="operatorSignHtml"
+								>
+								</span>
+								<input
+									type="number"
+									class="form-control"
+									placeholder="num2"
+									aria-label="num2"
+									v-model.number="num2"
+								/>
+							</div>
+							<div
+								class="btn-group w-100"
+								role="group"
+								aria-label="Basic example"
+							>
+								<button
+									type="button"
+									class="btn btn-secondary"
+									@click="switchOperator('+')"
+								>
+									<i class="bi bi-plus fs-4"></i>
+								</button>
+								<button
+									type="button"
+									class="btn btn-secondary"
+									@click="switchOperator('-')"
+								>
+									<i class="bi bi-dash fs-4"></i>
+								</button>
+								<button
+									type="button"
+									class="btn btn-secondary"
+									@click="switchOperator('*')"
+								>
+									<i class="bi bi-x fs-4"></i>
+								</button>
+								<button
+									type="button"
+									class="btn btn-secondary"
+									@click="switchOperator('/')"
+								>
+									<i class="bi bi-slash fs-4"></i>
+								</button>
+							</div>
+
+							<button
+								type="button"
+								class="btn btn-primary mt-2 fs-4 w-100"
+								@click="computeResult"
+							>
+								<i class="bi bi-arrow-repeat"></i>
+							</button>
+						</div>
+					</div>
+					<div class="card mt-3" style="width: 30rem">
+						<div class="card-body pb-0">
+							<h4 class="card-title">Result</h4>
+							<h1 class="text-warning">{{result}}</h1>
+						</div>
+						<hr />
+						<div class="card-body">
+							<h4 class="card-title">History</h4>
+							<ul class="list-group">
+								<li
+									class="list-group-item list-group-item-action"
+									v-for="(item, index) in history"
+									:class="{active: item.id === cache.id}"
+									:key="item.id"
+								>
+									{{index+1}}. {{item.result}}
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.1.0/uuidv4.min.js"></script>
+		<script src="https://unpkg.com/vue@next"></script>
+		<script>
+			console.log(uuidv4());
+			Vue.createApp({
+				data() {
+					return {
+						num1: 20,
+						num2: 10,
+						operator: '-',
+						result: null,
+						operatorSignHtml: null,
+						history: [],
+						cache: '',
+						// mathMethods: ['+', '-', '*', '/'],
+					};
+				},
+				methods: {
+					switchOperator(method) {
+						let signHtml = '';
+						switch (method) {
+							case '+':
+								this.operator = '+';
+								signHtml = '<i class="bi bi-plus fs-4 text-light"></i>';
+								break;
+							case '-':
+								this.operator = '-';
+								signHtml = '<i class="bi bi-dash fs-4 text-light"></i>';
+								break;
+							case '*':
+								this.operator = '*';
+								signHtml = '<i class="bi bi-x fs-4 text-light"></i>';
+								break;
+							case '/':
+								this.operator = '/';
+								signHtml = '<i class="bi bi-slash fs-4 text-light"></i>';
+								break;
+
+							default:
+								break;
+						}
+						this.operatorSignHtml = signHtml;
+					},
+					computeResult() {
+						if (this.num1 === null || this.num2 === null) {
+							alert('請輸入數字！');
+							return;
+						}
+						switch (this.operator) {
+							case '+':
+								this.result = this.num1 + this.num2;
+								break;
+							case '-':
+								this.result = this.num1 - this.num2;
+								break;
+							case '*':
+								this.result = this.num1 * this.num2;
+								break;
+							case '/':
+								this.result = this.num1 / this.num2;
+								break;
+
+							default:
+								break;
+						}
+						this.cache = {
+							result: `${this.num1} ${this.operator} ${this.num2} = ${this.result}`,
+							id: uuidv4(),
+						};
+
+						if (this.history.length === 10) {
+							this.history.pop();
+						}
+
+						this.history.reverse();
+						this.history.push(this.cache);
+						this.history.reverse();
+
+						const historyAryToString = JSON.stringify(this.history);
+						localStorage.setItem('calResults', historyAryToString);
+					},
+					reset() {},
+				},
+				mounted() {
+					const localHistory =
+						JSON.parse(localStorage.getItem('calResults')) || [];
+					// console.log(localHistory);
+					this.history = localHistory;
+					this.switchOperator(this.operator);
+				},
+			}).mount('#app');
+		</script>
+	</body>
+</html>
