@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Vue Week3</title>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"
+			crossorigin="anonymous"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"
+		/>
+
+		<style>
+			html,
+			body {
+				height: 100%;
+			}
+			.completed {
+				text-decoration: line-through;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app" class="h-100">
+			<main class="container">
+				<h2 class="text-center my-3">Vue3 Todo List</h2>
+				<div class="input-group mb-3">
+					<input
+						type="text"
+						class="form-control"
+						placeholder="next thing to do..."
+						aria-label="next thing to do..."
+						aria-describedby="button-addon2"
+						v-model="newTodo"
+						@keyup.enter="addTodo"
+					/>
+					<button
+						class="btn btn-outline-primary"
+						type="button"
+						id="button-addon2"
+						@click="addTodo"
+					>
+						Add
+					</button>
+				</div>
+				<ul class="nav nav-tabs mt-3 mb-2" id="visibilityTab">
+					<li class="nav-item">
+						<a
+							class="nav-link"
+							href="#"
+							@click.prevent="visibility  = ''"
+							:class="visibility === '' ? 'active' : ''"
+							>All</a
+						>
+					</li>
+					<li class="nav-item">
+						<a
+							class="nav-link"
+							href="#"
+							@click.prevent="visibility  = 'active'"
+							:class="visibility === 'active' ? 'active' : ''"
+							>Active</a
+						>
+					</li>
+
+					<li class="nav-item">
+						<a
+							class="nav-link"
+							href="#"
+							@click.prevent="visibility  = 'completed'"
+							:class="visibility === 'completed' ? 'active' : ''"
+							>Completed</a
+						>
+					</li>
+				</ul>
+				<div class="my-2">
+					<span class="badge rounded-pill bg-primary"
+						>Total Todos: {{totalTodos}}</span
+					>
+				</div>
+				<div class="list-group">
+					<div
+						class="list-group-item"
+						v-for="item in fiterTodos"
+						:for="item.id"
+					>
+						<div class="d-flex">
+							<div v-if="item.id === cacheData.id" class="input-group w-75">
+								<input
+									type="text"
+									class="form-control"
+									aria-describedby="basic-addon1"
+									@keyup.enter="doneTodo(cacheData.id)"
+									@keyup.esc="cancelEdit"
+									v-model="cacheData.text"
+								/>
+							</div>
+							<div v-else class="form-check">
+								<input
+									:id="item.id"
+									class="form-check-input"
+									type="checkbox"
+									value="item.text"
+									v-model="item.completed"
+								/>
+								<label
+									class="form-check-label"
+									:class="item.completed? 'completed text-muted' : ''"
+									:for="item.id"
+									@dblclick="editTodo(item.id, item.text)"
+								>
+									{{item.text}}
+								</label>
+							</div>
+							<button
+								@click="removeTodo(item.id)"
+								type="button"
+								class="btn-close ms-auto remove"
+								aria-label="Close"
+							></button>
+						</div>
+					</div>
+				</div>
+			</main>
+		</div>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.1.0/uuidv4.min.js"></script>
+		<script src="https://unpkg.com/vue@next"></script>
+		<script>
+			// console.log(uuidv4());
+			Vue.createApp({
+				data() {
+					return {
+						newTodo: '',
+						cacheData: {
+							id: null,
+							text: null,
+						},
+						visibility: '', // completed, active, default
+						todoList: [
+							{
+								//fake
+								id: uuidv4(),
+								text: '寫數學',
+								completed: false,
+							},
+						],
+					};
+				},
+				methods: {
+					addTodo() {
+						if (this.newTodo === '') {
+							alert('請輸入 todo');
+							return;
+						}
+
+						this.todoList.push({
+							id: uuidv4(),
+							text: this.newTodo.trim(),
+							completed: false,
+						});
+						this.newTodo = '';
+
+						const todoListAryToString = JSON.stringify(this.todoList);
+						localStorage.setItem('todoList', todoListAryToString);
+					},
+					//delete
+					removeTodo(id) {
+						const itemIndex = this.todoList.findIndex((item) => {
+							return item.id === id;
+						});
+						this.todoList.splice(itemIndex, 1);
+						const todoListAryToString = JSON.stringify(this.todoList);
+						localStorage.setItem('todoList', todoListAryToString);
+					},
+					//edit
+					editTodo(id, text) {
+						this.cacheData.id = id;
+						this.cacheData.text = text;
+					},
+					doneTodo(id) {
+						const itemIndex = this.todoList.findIndex((item) => {
+							return item.id === id;
+						});
+						this.todoList[itemIndex].text = this.cacheData.text;
+						console.log(itemIndex);
+
+						this.cacheData.id = null;
+						this.cacheData.text = null;
+
+						const todoListAryToString = JSON.stringify(this.todoList);
+						localStorage.setItem('todoList', todoListAryToString);
+					},
+					cancelEdit() {
+						this.cacheData.text = null;
+						this.cacheData.id = null;
+					},
+				},
+				mounted() {
+					const localTodoList =
+						JSON.parse(localStorage.getItem('todoList')) || [];
+					this.todoList = localTodoList;
+				},
+				computed: {
+					//自動運算
+					fiterTodos() {
+						switch (this.visibility) {
+							case 'completed': //已完成
+								return this.todoList.filter((item) => item.completed === true);
+
+							case 'active': // 未完成
+								return this.todoList.filter((item) => item.completed !== true);
+
+							default:
+								return this.todoList;
+						}
+					},
+					totalTodos() {
+						return this.todoList.length;
+					},
+				},
+			}).mount('#app');
+		</script>
+	</body>
+</html>
